@@ -13,9 +13,9 @@ jobs:
           distribution: 'temurin'
       - name: Setup Gradle
         run: |
-          wget -q https://services.gradle.org/distributions/gradle-7.4.2-bin.zip
-          unzip -q gradle-7.4.2-bin.zip
-          echo "$PWD/gradle-7.4.2/bin" >> $GITHUB_PATH
+          wget -q https://services.gradle.org/distributions/gradle-7.5-bin.zip
+          unzip -q gradle-7.5-bin.zip
+          echo "$PWD/gradle-7.5/bin" >> $GITHUB_PATH
       - name: Build APK
         run: |
           rm -rf android
@@ -41,7 +41,7 @@ jobs:
                   applicationId "com.wassif.learn"
                   minSdkVersion 21
                   targetSdkVersion 34
-                  versionCode 26
+                  versionCode 27
                   versionName "2.0"
               }
               compileOptions {
