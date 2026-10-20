@@ -12,27 +12,106 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           
-      - name: Setup Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          
-      - name: Clean Gradle Cache
-        run: rm -rf ~/.gradle/caches/ ~/.gradle/wrapper/
-          
-      - name: Create Capacitor Project
+      - name: Build Simple WebView APK
         run: |
-          npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          echo '{"appId":"com.wassif.learn","appName":"WASSIF LEARN","webDir":".","bundledWebRuntime":false}' > capacitor.config.json
-          npx cap add android
-          npx cap copy android
+          # Create project structure
+          mkdir -p android/app/src/main/java/com/wassif/learn
+          mkdir -p android/app/src/main/res/values
+          mkdir -p android/app/src/main/assets
+          mkdir -p android/gradle/wrapper
           
-      - name: Build APK
-        run: |
+          # Copy your website files to assets
+          cp index.html android/app/src/main/assets/ || echo "<html><body><h1>WASSIF LEARN</h1></body></html>" > android/app/src/main/assets/index.html
+          cp -r css js images  android/app/src/main/assets/ 2>/dev/null || true
+          
+          # settings.gradle
+          echo "include ':app'" > android/settings.gradle
+          
+          # Root build.gradle
+          cat > android/build.gradle << 'GRADLE'
+          buildscript {
+              repositories { google(); mavenCentral() }
+              dependencies { classpath 'com.android.tools.build:gradle:8.1.4' }
+          }
+          allprojects { repositories { google(); mavenCentral() } }
+          GRADLE
+          
+          # App build.gradle
+          cat > android/app/build.gradle << 'GRADLE'
+          plugins { id 'com.android.application' }
+          android {
+              namespace 'com.wassif.learn'
+              compileSdk 34
+              defaultConfig {
+                  applicationId "com.wassif.learn"
+                  minSdk 21
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0"
+              }
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+          dependencies {}
+          GRADLE
+          
+          # AndroidManifest.xml
+          cat > android/app/src/main/AndroidManifest.xml << 'MANIFEST'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <application android:label="WASSIF LEARN" android:theme="@android:style/Theme.NoTitleBar">
+                  <activity android:name=".MainActivity" android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          MANIFEST
+          
+          # strings.xml
+          echo '<resources><string name="app_name">WASSIF LEARN</string></resources>' > android/app/src/main/res/values/strings.xml
+          
+          # MainActivity.java - Simple WebView
+          cat > android/app/src/main/java/com/wassif/learn/MainActivity.java << 'JAVA'
+          package com.wassif.learn;
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.webkit.WebView;
+          import android.webkit.WebSettings;
+          import android.webkit.WebViewClient;
+          public class MainActivity extends Activity {
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  WebView webView = new WebView(this);
+                  webView.setWebViewClient(new WebViewClient());
+                  WebSettings settings = webView.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+                  settings.setAllowFileAccess(true);
+                  webView.loadUrl("file:///android_asset/index.html");
+                  setContentView(webView);
+              }
+          }
+          JAVA
+          
+          # Gradle Wrapper properties
+          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip" > android/gradle/wrapper/gradle-wrapper.properties
+          
+          # Download gradle wrapper jar
           cd android
+          wget -q https://github.com/gradle/gradle/raw/v8.5.0/gradle/wrapper/gradle-wrapper.jar -O gradle/wrapper/gradle-wrapper.jar
+          echo "#!/usr/bin/env sh" > gradlew
+          echo 'DIR="$(cd "$(dirname "$0")" && pwd)"' >> gradlew
+          echo 'exec java -jar "$DIR/gradle/wrapper/gradle-wrapper.jar" "$@"' >> gradlew
           chmod +x gradlew
-          ./gradlew clean assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx2g"
+          
+          # Build!
+          ./gradlew assembleDebug --no-daemon
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
