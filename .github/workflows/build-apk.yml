@@ -11,20 +11,14 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
+          
       - name: Build APK
         run: |
-          export ANDROID_HOME=/usr/local/lib/android/sdk
-          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
           mkdir -p android/app/src/main/java/com/wassif/learn
           mkdir -p android/app/src/main/res/values
           mkdir -p android/app/src/main/assets
           
-          # نسخ ملفات موقعك
-          cp index.html android/app/src/main/assets/ 2>/dev/null || echo "<html><body><h1>WASSIF LEARN</h1></body></html>" > android/app/src/main/assets/index.html
+          cp index.html android/app/src/main/assets/ 2>/dev/null || echo "<html><body style='text-align:center;padding:50px;'><h1>WASSIF LEARN</h1><p>Welcome!</p></body></html>" > android/app/src/main/assets/index.html
           
           echo "include ':app'" > android/settings.gradle
           
@@ -93,11 +87,10 @@ jobs:
           }
           JAVA
           
-          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+          echo "sdk.dir=/usr/local/lib/android/sdk" > android/local.properties
           
           wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
           unzip -q gradle-8.5-bin.zip
-          ./gradle-8.5/bin/gradle --version
           cd android
           ../gradle-8.5/bin/gradle assembleDebug --no-daemon
           
