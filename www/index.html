@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WASSIF LEARN</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Tajawal:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Fredoka','Tajawal',sans-serif;background:#fff;overflow:hidden}
+#intro{position:fixed;inset:0;background:linear-gradient(135deg,#FFD93D,#FF6B6B,#6C5CE7,#4ECDC4);background-size:400% 400%;animation:grad 3s infinite;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99;transition:0.8s}
+@keyframes grad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+#intro .logo{width:140px;height:140px;background:#fff;border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:70px;animation:pop 0.8s ease;box-shadow:0 15px 30px rgba(0,0,0,0.2)}
+@keyframes pop{0%{transform:scale(0)}80%{transform:scale(1.1)}100%{transform:scale(1)}}
+#intro h1{margin-top:20px;color:#fff;font-size:38px;text-shadow:0 3px 10px rgba(0,0,0,0.3)}
+#intro p{color:#fff;font-size:18px;margin-top:8px}
+#app{display:none;min-height:100vh;background:#F7F9FF;padding:0}
+.header{background:linear-gradient(90deg,#6C5CE7,#FF6B6B);padding:18px 20px;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.header h2{font-size:22px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px}
+.card{border-radius:20px;padding:18px;color:#fff;cursor:pointer;min-height:125px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 20px rgba(0,0,0,0.15);transform:translateY(0);transition:0.2s}
+.card:active{transform:translateY(4px)}
+.card .icon{font-size:42px}
+.card .title{font-size:16px;margin-top:8px;line-height:1.2}
+.card .ar{font-size:13px;opacity:0.9}
+.c1{background:linear-gradient(135deg,#FF6B6B,#FF8E53)}
+.c2{background:linear-gradient(135deg,#4ECDC4,#44A08D)}
+.c3{background:linear-gradient(135deg,#FFD93D,#FF9F1C)}
+.c4{background:linear-gradient(135deg,#6C5CE7,#A29BFE)}
+.c5{background:linear-gradient(135deg,#45B7D1,#96C93D)}
+.c6{background:linear-gradient(135deg,#FD79A8,#FDCB6E)}
+.c7{background:linear-gradient(135deg,#00B894,#00CEC9)}
+.c8{background:linear-gradient(135deg,#E17055,#FAB1A0)}
+
+#lesson{position:fixed;inset:0;background:#fff;z-index:10;display:none;flex-direction:column}
+.lesson-top{background:linear-gradient(90deg,#6C5CE7,#FF6B6B);color:#fff;padding:16px;display:flex;align-items:center;gap:12px}
+.lesson-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.word-img{width:160px;height:160px;background:#F0F3FF;border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:90px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}
+.word-en{font-size:36px;color:#2D3436;margin-top:18px}
+.word-ar{font-size:20px;color:#636E72;margin-top:6px}
+.controls{margin-top:20px;display:flex;gap:12px}
+.btn{padding:14px 22px;border:none;border-radius:30px;font-weight:bold;font-size:16px;cursor:pointer}
+.btn-speak{background:#4ECDC4;color:#fff}
+.btn-next{background:#6C5CE7;color:#fff}
+.progress{height:6px;background:#eee;width:100%}
+.progress-bar{height:100%;background:linear-gradient(90deg,#6C5CE7,#FF6B6B);width:0%;transition:0.3s}
+</style>
+</head>
+<body>
+<div id="intro">
+<div class="logo">📚</div>
+<h1>WASSIF LEARN</h1>
+<p>تعلم الإنجليزية بسهولة!</p>
+</div>
+
+<div id="app">
+<div class="header">
+<h2>🫒 WASSIF LEARN</h2>
+<span>⭐ <span id="score">0</span></span>
+</div>
+<div class="grid">
+<div class="card c1" onclick="openTopic('animals')"><div class="icon">🐶</div><div><div class="title">Animals</div><div class="ar">الحيوانات</div></div></div>
+<div class="card c2" onclick="openTopic('colors')"><div class="icon">🎨</div><div><div class="title">Colors</div><div class="ar">الألوان</div></div></div>
+<div class="card c3" onclick="openTopic('numbers')"><div class="icon">🔢</div><div><div class="title">Numbers</div><div class="ar">الأرقام</div></div></div>
+<div class="card c4" onclick="openTopic('food')"><div class="icon">🍎</div><div><div class="title">Food</div><div class="ar">الماكلة</div></div></div>
+<div class="card c5" onclick="openTopic('family')"><div class="icon">👨‍👩‍👧</div><div><div class="title">Family</div><div class="ar">العائلة</div></div></div>
+<div class="card c6" onclick="openTopic('body')"><div class="icon">🧍</div><div><div class="title">Body</div><div class="ar">الجسم</div></div></div>
+<div class="card c7" onclick="openTopic('house')"><div class="icon">🏠</div><div><div class="title">House</div><div class="ar">الدار</div></div></div>
+<div class="card c8" onclick="openTopic('clothes')"><div class="icon">👕</div><div><div class="title">Clothes</div><div class="ar">الحوايج</div></div></div>
+</div>
+</div>
+
+<div id="lesson">
+<div class="lesson-top">
+<button onclick="closeLesson()" style="background:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px">←</button>
+<h3 id="topicName">Topic</h3>
+</div>
+<div class="progress"><div class="progress-bar" id="pbar"></div></div>
+<div class="lesson-body">
+<div class="word-img" id="wImg">🐶</div>
+<div class="word-en" id="wEn">Dog</div>
+<div class="word-ar" id="wAr">كلب</div>
+<div class="controls">
+<button class="btn btn-speak" onclick="speak()">🔊 اسمع</button>
+<button class="btn btn-next" onclick="nextWord()">التالي ➡️</button>
+</div>
+</div>
+</div>
+
+<script>
+const data={
+animals:[{en:'Dog',ar:'كلب',em:'🐶'},{en:'Cat',ar:'قط',em:'🐱'},{en:'Lion',ar:'أسد',em:'🦁'},{en:'Bird',ar:'طير',em:'🐦'},{en:'Fish',ar:'سمكة',em:'🐟'}],
+colors:[{en:'Red',ar:'أحمر',em:'🔴'},{en:'Blue',ar:'أزرق',em:'🔵'},{en:'Yellow',ar:'أصفر',em:'🟡'},{en:'Green',ar:'أخضر',em:'🟢'},{en:'Black',ar:'أسود',em:'⚫'}],
+numbers:[{en:'One',ar:'واحد',em:'1️⃣'},{en:'Two',ar:'اثنان',em:'2️⃣'},{en:'Three',ar:'ثلاثة',em:'3️⃣'},{en:'Four',ar:'أربعة',em:'4️⃣'},{en:'Five',ar:'خمسة',em:'5️⃣'}],
+food:[{en:'Apple',ar:'تفاحة',em:'🍎'},{en:'Banana',ar:'موز',em:'🍌'},{en:'Bread',ar:'خبز',em:'🍞'},{en:'Milk',ar:'حليب',em:'🥛'},{en:'Egg',ar:'بيضة',em:'🥚'}],
+family:[{en:'Father',ar:'أب',em:'👨'},{en:'Mother',ar:'أم',em:'👩'},{en:'Brother',ar:'أخ',em:'👦'},{en:'Sister',ar:'أخت',em:'👧'},{en:'Baby',ar:'رضيع',em:'👶'}],
+body:[{en:'Head',ar:'رأس',em:'🧠'},{en:'Eye',ar:'عين',em:'👁️'},{en:'Hand',ar:'يد',em:'✋'},{en:'Heart',ar:'قلب',em:'❤️'},{en:'Mouth',ar:'فم',em:'👄'}],
+house:[{en:'Door',ar:'باب',em:'🚪'},{en:'Window',ar:'نافذة',em:'🪟'},{en:'Bed',ar:'سرير',em:'🛏️'},{en:'Chair',ar:'كرسي',em:'🪑'},{en:'Book',ar:'كتاب',em:'📚'}],
+clothes:[{en:'Shirt',ar:'قميص',em:'👕'},{en:'Pants',ar:'سروال',em:'👖'},{en:'Hat',ar:'قبعة',em:'🧢'},{en:'Shoe',ar:'حذاء',em:'👟'},{en:'Dress',ar:'فستان',em:'👗'}]
+};
+let curTopic=null,idx=0,score=0;
+setTimeout(()=>{document.getElementById('intro').style.opacity='0';setTimeout(()=>{document.getElementById('intro').style.display='none';document.getElementById('app').style.display='block';},800)},2500);
+function openTopic(t){curTopic=t;idx=0;document.getElementById('lesson').style.display='flex';document.getElementById('topicName').innerText=t.toUpperCase();showWord();}
+function closeLesson(){document.getElementById('lesson').style.display='none';}
+function showWord(){const w=data[curTopic][idx];document.getElementById('wImg').innerText=w.em;document.getElementById('wEn').innerText=w.en;document.getElementById('wAr').innerText=w.ar;document.getElementById('pbar').style.width=((idx+1)/data[curTopic].length*100)+'%';speak();}
+function nextWord(){if(idx<data[curTopic].length-1){idx++;showWord();score+=10;document.getElementById('score').innerText=score;playWin();}else{alert('🎉 برافو! كملتي '+curTopic);score+=50;document.getElementById('score').innerText=score;closeLesson();}}
+function speak(){const w=data[curTopic][idx];const u=new SpeechSynthesisUtterance(w.en);u.lang='en-US';speechSynthesis.speak(u);}
+function playWin(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.setValueAtTime(600,ctx.currentTime);o.frequency.linearRampToValueAtTime(900,ctx.currentTime+0.2);g.gain.setValueAtTime(0.5,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3);o.start();o.stop(ctx.currentTime+0.3);}catch(e){}}
+</script>
+</body>
+</html>
+ENDOFFILE
+
