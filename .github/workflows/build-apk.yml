@@ -11,23 +11,23 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          
-      - name: Build Simple WebView APK
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build APK
         run: |
-          # Create project structure
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
           mkdir -p android/app/src/main/java/com/wassif/learn
           mkdir -p android/app/src/main/res/values
           mkdir -p android/app/src/main/assets
-          mkdir -p android/gradle/wrapper
           
-          # Copy your website files to assets
-          cp index.html android/app/src/main/assets/ || echo "<html><body><h1>WASSIF LEARN</h1></body></html>" > android/app/src/main/assets/index.html
-          cp -r css js images  android/app/src/main/assets/ 2>/dev/null || true
+          # نسخ ملفات موقعك
+          cp index.html android/app/src/main/assets/ 2>/dev/null || echo "<html><body><h1>WASSIF LEARN</h1></body></html>" > android/app/src/main/assets/index.html
           
-          # settings.gradle
           echo "include ':app'" > android/settings.gradle
           
-          # Root build.gradle
           cat > android/build.gradle << 'GRADLE'
           buildscript {
               repositories { google(); mavenCentral() }
@@ -36,7 +36,6 @@ jobs:
           allprojects { repositories { google(); mavenCentral() } }
           GRADLE
           
-          # App build.gradle
           cat > android/app/build.gradle << 'GRADLE'
           plugins { id 'com.android.application' }
           android {
@@ -54,10 +53,8 @@ jobs:
                   targetCompatibility JavaVersion.VERSION_17
               }
           }
-          dependencies {}
           GRADLE
           
-          # AndroidManifest.xml
           cat > android/app/src/main/AndroidManifest.xml << 'MANIFEST'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET" />
@@ -72,10 +69,8 @@ jobs:
           </manifest>
           MANIFEST
           
-          # strings.xml
           echo '<resources><string name="app_name">WASSIF LEARN</string></resources>' > android/app/src/main/res/values/strings.xml
           
-          # MainActivity.java - Simple WebView
           cat > android/app/src/main/java/com/wassif/learn/MainActivity.java << 'JAVA'
           package com.wassif.learn;
           import android.app.Activity;
@@ -84,34 +79,27 @@ jobs:
           import android.webkit.WebSettings;
           import android.webkit.WebViewClient;
           public class MainActivity extends Activity {
-              @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
-                  WebView webView = new WebView(this);
-                  webView.setWebViewClient(new WebViewClient());
-                  WebSettings settings = webView.getSettings();
-                  settings.setJavaScriptEnabled(true);
-                  settings.setDomStorageEnabled(true);
-                  settings.setAllowFileAccess(true);
-                  webView.loadUrl("file:///android_asset/index.html");
-                  setContentView(webView);
+                  WebView wv = new WebView(this);
+                  wv.setWebViewClient(new WebViewClient());
+                  WebSettings s = wv.getSettings();
+                  s.setJavaScriptEnabled(true);
+                  s.setDomStorageEnabled(true);
+                  s.setAllowFileAccess(true);
+                  wv.loadUrl("file:///android_asset/index.html");
+                  setContentView(wv);
               }
           }
           JAVA
           
-          # Gradle Wrapper properties
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip" > android/gradle/wrapper/gradle-wrapper.properties
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
           
-          # Download gradle wrapper jar
+          wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
+          unzip -q gradle-8.5-bin.zip
+          ./gradle-8.5/bin/gradle --version
           cd android
-          wget -q https://github.com/gradle/gradle/raw/v8.5.0/gradle/wrapper/gradle-wrapper.jar -O gradle/wrapper/gradle-wrapper.jar
-          echo "#!/usr/bin/env sh" > gradlew
-          echo 'DIR="$(cd "$(dirname "$0")" && pwd)"' >> gradlew
-          echo 'exec java -jar "$DIR/gradle/wrapper/gradle-wrapper.jar" "$@"' >> gradlew
-          chmod +x gradlew
-          
-          # Build!
-          ./gradlew assembleDebug --no-daemon
+          ../gradle-8.5/bin/gradle assembleDebug --no-daemon
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
