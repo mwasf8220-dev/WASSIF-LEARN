@@ -12,30 +12,30 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           
-      - name: Setup Node
+      - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           
-      - name: Install Capacitor
+      - name: Clean Gradle Cache
+        run: rm -rf ~/.gradle/caches/ ~/.gradle/wrapper/
+          
+      - name: Create Capacitor Project
         run: |
-          npm install -g @capacitor/cli
-          npm install @capacitor/core @capacitor/android --save
-          npx cap init "WASSIF LEARN" com.wassif.learn --web-dir=. --npm-client npm || true
-          npx cap add android || true
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          echo '{"appId":"com.wassif.learn","appName":"WASSIF LEARN","webDir":".","bundledWebRuntime":false}' > capacitor.config.json
+          npx cap add android
+          npx cap copy android
           
-      - name: Copy web assets
-        run: npx cap copy android || true
-        
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew clean assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx2g"
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: wassif-learn-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
