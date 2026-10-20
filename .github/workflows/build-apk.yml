@@ -13,33 +13,43 @@ jobs:
           distribution: 'temurin'
       - name: Build APK
         run: |
+          rm -rf android
           mkdir -p android/app/src/main/java/com/wassif/learn
           mkdir -p android/app/src/main/res/values
-          mkdir -p android/app/src/main/assets
-          if [ -d "www" ]; then cp -r www/* android/app/src/main/assets/; else cp *.html android/app/src/main/assets/ 2>/dev/null || true; fi
-          echo "include ':app'" > android/settings.gradle
+          mkdir -p android/app/src/main/assets/www
+          cp -r www/* android/app/src/main/assets/www/ 2>/dev/null || cp index.html android/app/src/main/assets/www/ 2>/dev/null || true
+          cp -r www android/app/src/main/assets/ 2>/dev/null || true
+          ls android/app/src/main/assets/www/ | head -20
+          cat > android/settings.gradle << 'GRADLE'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+          include ':app'
+          GRADLE
           cat > android/build.gradle << 'GRADLE'
-          buildscript { repositories { google(); mavenCentral() } dependencies { classpath 'com.android.tools.build:gradle:8.1.4' } }
-          allprojects { repositories { google(); mavenCentral() } }
+          plugins { id 'com.android.application' version '8.1.4' apply false }
           GRADLE
           cat > android/app/build.gradle << 'GRADLE'
           plugins { id 'com.android.application' }
-          android { namespace 'com.wassif.learn'; compileSdk 34; defaultConfig { applicationId "com.wassif.learn"; minSdk 21; targetSdk 34; versionCode 5; versionName "1.4" } compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 } }
+          android { namespace 'com.wassif.learn'; compileSdk 34; defaultConfig { applicationId "com.wassif.learn"; minSdk 21; targetSdk 34; versionCode 11; versionName "1.5" } compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 } }
           GRADLE
           cat > android/app/src/main/AndroidManifest.xml << 'MANIFEST'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET" /><application android:label="WASSIF LEARN" android:theme="@android:style/Theme.NoTitleBar"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity></application></manifest>
           MANIFEST
           echo '<resources><string name="app_name">WASSIF LEARN</string></resources>' > android/app/src/main/res/values/strings.xml
           cat > android/app/src/main/java/com/wassif/learn/MainActivity.java << 'JAVA'
-          package com.wassif.learn; import android.app.Activity; import android.os.Bundle; import android.webkit.WebView; import android.webkit.WebSettings; import android.webkit.WebViewClient; public class MainActivity extends Activity { protected void onCreate(Bundle s) { super.onCreate(s); WebView wv = new WebView(this); wv.setWebViewClient(new WebViewClient()); WebSettings ws = wv.getSettings(); ws.setJavaScriptEnabled(true); ws.setDomStorageEnabled(true); ws.setAllowFileAccess(true); ws.setAllowFileAccessFromFileURLs(true); ws.setAllowUniversalAccessFromFileURLs(true); wv.loadUrl("file:///android_asset/index.html"); setContentView(wv); } }
+          package com.wassif.learn; import android.app.Activity; import android.os.Bundle; import android.webkit.WebView; import android.webkit.WebSettings; import android.webkit.WebViewClient; public class MainActivity extends Activity { protected void onCreate(Bundle s) { super.onCreate(s); WebView wv = new WebView(this); wv.setWebViewClient(new WebViewClient()); WebSettings ws = wv.getSettings(); ws.setJavaScriptEnabled(true); ws.setDomStorageEnabled(true); ws.setAllowFileAccess(true); ws.setAllowFileAccessFromFileURLs(true); ws.setAllowUniversalAccessFromFileURLs(true); wv.loadUrl("file:///android_asset/www/index.html"); setContentView(wv); } }
           JAVA
           echo "sdk.dir=/usr/local/lib/android/sdk" > android/local.properties
           wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip; unzip -q gradle-8.5-bin.zip; cd android; ../gradle-8.5/bin/gradle assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wassif-learn-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v1.4-${{ github.run_number }}
+          tag_name: v1.5-${{ github.run_number }}
           files: android/app/build/outputs/apk/debug/app-debug.apk
-          name: WASSIF LEARN v1.4
+          name: WASSIF LEARN APK v1.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
