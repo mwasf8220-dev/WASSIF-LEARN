@@ -11,14 +11,13 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - uses: android-actions/setup-android@v3
       - name: Build APK
         run: |
           rm -rf android
           mkdir -p android/app/src/main/java/com/wassif/learn
           mkdir -p android/app/src/main/res/values
           mkdir -p android/app/src/main/assets/www
-          cp -r www/* android/app/src/main/assets/www/ 2>/dev/null || true
+          cp -r www/* android/app/src/main/assets/www/ 2>/dev/null || cp index.html android/app/src/main/assets/www/ 2>/dev/null || echo "<h1>WASSIF LEARN</h1>" > android/app/src/main/assets/www/index.html
           cat > android/settings.gradle << 'SET'
           include ':app'
           SET
@@ -37,7 +36,7 @@ jobs:
                   applicationId "com.wassif.learn"
                   minSdkVersion 21
                   targetSdkVersion 34
-                  versionCode 23
+                  versionCode 24
                   versionName "2.0"
               }
               compileOptions {
