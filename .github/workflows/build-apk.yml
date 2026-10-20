@@ -12,13 +12,26 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           
-      - name: Build APK
+      - name: Build APK with FULL site
         run: |
+          echo "Files in repo:"
+          ls -la
           mkdir -p android/app/src/main/java/com/wassif/learn
           mkdir -p android/app/src/main/res/values
           mkdir -p android/app/src/main/assets
           
-          cp index.html android/app/src/main/assets/ 2>/dev/null || echo "<html><body style='text-align:center;padding:50px;'><h1>WASSIF LEARN</h1><p>Welcome!</p></body></html>" > android/app/src/main/assets/index.html
+          # نسخ كلشي للموقع - جميع الملفات
+          echo "Copying ALL files to assets..."
+          cp -r *.html *.css *.js android/app/src/main/assets/ 2>/dev/null || true
+          cp -r *.json android/app/src/main/assets/ 2>/dev/null || true
+          for d in css js assets images img style scripts src public; do
+            [ -d "$d" ] && cp -r "$d" android/app/src/main/assets/ && echo "Copied folder $d"
+          done
+          # نسخ كل الملفات لي كاينة فالروت
+          find . -maxdepth 1 -type f \( -name "*.html" -o -name "*.htm" \) -exec cp {} android/app/src/main/assets/ \;
+          
+          echo "Assets content:"
+          ls -la android/app/src/main/assets/
           
           echo "include ':app'" > android/settings.gradle
           
@@ -39,8 +52,8 @@ jobs:
                   applicationId "com.wassif.learn"
                   minSdk 21
                   targetSdk 34
-                  versionCode 1
-                  versionName "1.0"
+                  versionCode 2
+                  versionName "1.1"
               }
               compileOptions {
                   sourceCompatibility JavaVersion.VERSION_17
@@ -81,6 +94,9 @@ jobs:
                   s.setJavaScriptEnabled(true);
                   s.setDomStorageEnabled(true);
                   s.setAllowFileAccess(true);
+                  s.setAllowFileAccessFromFileURLs(true);
+                  s.setAllowUniversalAccessFromFileURLs(true);
+                  s.setAllowContentAccess(true);
                   wv.loadUrl("file:///android_asset/index.html");
                   setContentView(wv);
               }
@@ -88,7 +104,6 @@ jobs:
           JAVA
           
           echo "sdk.dir=/usr/local/lib/android/sdk" > android/local.properties
-          
           wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
           unzip -q gradle-8.5-bin.zip
           cd android
@@ -97,5 +112,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: wassif-learn-apk
+          name: wassif-learn-apk-full
           path: android/app/build/outputs/apk/debug/app-debug.apk
