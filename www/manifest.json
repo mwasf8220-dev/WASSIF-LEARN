@@ -1,15 +1,1 @@
-{
-  "name": "WASSIF LEARN",
-  "short_name": "WASSIF",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#6C5CE7",
-  "theme_color": "#6C5CE7",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/2232/2232688.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
+{"name":"9amouss wassif","short_name":"9amouss wassif","start_url":"index.html","display":"standalone","background_color":"#1a73e8","theme_color":"#1a73e8"}
